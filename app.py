@@ -3,7 +3,10 @@ import os
 import time
 from agent import DevOn
 
-devon = DevOn()
+image_temp = "https://cdn.sanity.io/images/bj34pdbp/migration/06f44b489e9fea1004ebd8249a0a633f52fd925f-1096x702.png?w=3840&q=75&fit=clip&auto=format"
+devon = DevOn(
+    editor_image=image_temp, browser_image=image_temp, scratchpad_image=image_temp
+)
 
 
 def add_message(history, message):
@@ -23,7 +26,7 @@ def bot(history):
             editor_image = devon.editor_image
             browser_image = devon.browser_image
             scratchpad_image = devon.scratchpad_image
-    return history, editor_image, browser_image, scratchpad_image
+        yield history, editor_image, browser_image, scratchpad_image
 
 
 with gr.Blocks(css="footer {visibility: hidden}") as demo:
@@ -36,6 +39,7 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
             )
 
             chat_input = gr.MultimodalTextbox(
+                value={"text": "write a basic hello world fastapi server"},
                 interactive=True,
                 file_types=["image"],
                 placeholder="Enter message or upload file...",
