@@ -14,4 +14,6 @@ https://github.com/lordspline/DevOn/assets/74811063/051f1a35-e4cd-4a68-99fc-038a
 
 Day 2:
 
+Working with Replit is evidently problematic.
+
 https://github.com/lordspline/DevOn/assets/74811063/a8bd9d65-42de-4bf1-a721-79f9b4d772ef
