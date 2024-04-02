@@ -10,3 +10,4 @@ Let's see how far this goes in 2 weeks.
 
 Day 1:
 
+![day1](https://github.com/lordspline/DevOn/assets/74811063/051f1a35-e4cd-4a68-99fc-038a9e600208)
