@@ -3,7 +3,7 @@ import os
 import time
 from agent import DevOn
 
-image_temp = "https://cdn.sanity.io/images/bj34pdbp/migration/06f44b489e9fea1004ebd8249a0a633f52fd925f-1096x702.png?w=3840&q=75&fit=clip&auto=format"
+image_temp = "https://multion-client-screenshots.s3.us-east-2.amazonaws.com/0cea8653-bf81-41ac-84f2-9b08f8f2f2fa_e9209e98-8863-44e4-bc16-0ed46b1e56ca_remote_screenshot.png"
 devon = DevOn(
     editor_image=image_temp, browser_image=image_temp, scratchpad_image=image_temp
 )
