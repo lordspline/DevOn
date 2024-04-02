@@ -32,6 +32,36 @@ class DevOn:
                 "includeScreenshot": True,
             }
         )
+        self.programmer_logged_in = False
+
+        time.sleep(1)
+        self.editor_image = self.programmer["screenshot"]
+        self.researcher = multion.create_session(
+            {
+                "url": "https://www.google.com",
+                "includeScreenshot": True,
+            }
+        )
+        time.sleep(1)
+        self.browser_image = self.researcher["screenshot"]
+        self.notetaker = multion.create_session(
+            {
+                "url": "https://onlinenotepad.org/notepad",
+                "includeScreenshot": True,
+            }
+        )
+        time.sleep(1)
+        self.scratchpad_image = self.notetaker["screenshot"]
+
+        self.done = True
+        self.task = ""
+        # self.plans = [""]
+        self.plan = ""
+        # self.explanations = []
+        self.messages = []
+        self.client = OpenAI()
+
+    def programmer_login(self):
         while True:
             self.programmer = multion.step_session(
                 self.programmer["session_id"],
@@ -49,29 +79,6 @@ class DevOn:
 
         time.sleep(1)
         self.editor_image = self.programmer["screenshot"]
-        self.researcher = multion.create_session(
-            {
-                "url": "https://www.google.com",
-                "includeScreenshot": True,
-            }
-        )
-        time.sleep(1)
-        self.browser_image = self.researcher["screenshot"]
-        self.notetaker = multion.create_session(
-            {
-                "url": "https://onlinenotepad.org/notepad",
-            }
-        )
-        time.sleep(1)
-        self.scratchpad_image = self.notetaker["screenshot"]
-
-        self.done = True
-        self.task = ""
-        # self.plans = [""]
-        self.plan = ""
-        # self.explanations = []
-        self.messages = []
-        self.client = OpenAI()
 
     def prepare_messages(self):
         messages = [
@@ -87,6 +94,43 @@ class DevOn:
         ]
         for message in self.messages:
             messages.append(message)
+
+        messages.append(
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "This is the current state of the Programmer Intern.",
+                    },
+                    {"type": "image_url", "image_url": {"url": self.editor_image}},
+                ],
+            }
+        )
+        messages.append(
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "This is the current state of the Researcher Intern.",
+                    },
+                    {"type": "image_url", "image_url": {"url": self.browser_image}},
+                ],
+            }
+        )
+        messages.append(
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "This is the current state of the Notetaker Intern.",
+                    },
+                    {"type": "image_url", "image_url": {"url": self.scratchpad_image}},
+                ],
+            }
+        )
         return messages
 
     def execute_action(self, action):
@@ -101,6 +145,9 @@ class DevOn:
             self.plan = action_arg
             return
         elif action_func == "programmer":
+            if not self.programmer_logged_in:
+                self.programmer_login()
+                self.programmer_logged_in = True
             action_arg = action.split(" ", 1)[1]
             while True:
                 self.programmer = multion.step_session(
@@ -116,12 +163,46 @@ class DevOn:
                 # self.editor_image = self.programmer["screenshot"]
                 if self.programmer["status"] == "DONE":
                     break
+            time.sleep(1)
+            self.editor_image = self.programmer["screenshot"]
             return
         elif action_func == "researcher":
             action_arg = action.split(" ", 1)[1]
+            while True:
+                self.researcher = multion.step_session(
+                    self.researcher["session_id"],
+                    {
+                        "input": action_arg,
+                        "url": "https://www.google.com",
+                        "includeScreenshot": True,
+                    },
+                )
+                print(self.researcher)
+                # time.sleep(1)
+                # self.editor_image = self.programmer["screenshot"]
+                if self.researcher["status"] == "DONE":
+                    break
+            time.sleep(1)
+            self.browser_image = self.researcher["screenshot"]
             return
         elif action_func == "notetaker":
             action_arg = action.split(" ", 1)[1]
+            while True:
+                self.notetaker = multion.step_session(
+                    self.notetaker["session_id"],
+                    {
+                        "input": action_arg,
+                        "url": "https://onlinenotepad.org/notepad",
+                        "includeScreenshot": True,
+                    },
+                )
+                print(self.notetaker)
+                # time.sleep(1)
+                # self.editor_image = self.programmer["screenshot"]
+                if self.notetaker["status"] == "DONE":
+                    break
+            time.sleep(1)
+            self.scratchpad_image = self.notetaker["screenshot"]
             return
         elif action_func == "clarify":
             action_arg = action.split(" ", 1)[1]
@@ -138,7 +219,6 @@ class DevOn:
         action, explanation = response.split("Explanation: ", 1)
         action = action.split("Action: ", 1)[1]
 
-        self.execute_action(action)
         self.messages.append({"role": "assistant", "content": response})
         self.messages.append(
             {
@@ -146,8 +226,10 @@ class DevOn:
                 "content": "The current Plan state is: {plan}".format(plan=self.plan),
             }
         )
-
         print(self.messages)
+
+        self.execute_action(action)
+
         # temp
         # self.done = True
         return explanation
