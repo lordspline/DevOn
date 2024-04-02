@@ -33,9 +33,7 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
     with gr.Row():
         with gr.Column():
             chatbot = gr.Chatbot(
-                [],
-                elem_id="chatbot",
-                bubble_full_width=False,
+                [], elem_id="chatbot", bubble_full_width=False, height=300
             )
 
             chat_input = gr.MultimodalTextbox(

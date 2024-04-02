@@ -1,5 +1,6 @@
 from openai import OpenAI
 from prompts.orchestrator import orchestrator_prompt
+from prompts.programmer import programmer_notes
 from dotenv import load_dotenv
 import time
 import multion
@@ -145,15 +146,12 @@ class DevOn:
             self.plan = action_arg
             return
         elif action_func == "programmer":
-            if not self.programmer_logged_in:
-                self.programmer_login()
-                self.programmer_logged_in = True
             action_arg = action.split(" ", 1)[1]
             while True:
                 self.programmer = multion.step_session(
                     self.programmer["session_id"],
                     {
-                        "input": action_arg,
+                        "input": action_arg + "\n\n" + programmer_notes,
                         "url": "https://replit.com/login",
                         "includeScreenshot": True,
                     },
@@ -209,6 +207,9 @@ class DevOn:
             return
 
     def orchestrator(self):
+        if not self.programmer_logged_in:
+            self.programmer_login()
+            self.programmer_logged_in = True
         messages = self.prepare_messages()
         chat_completion = self.client.chat.completions.create(
             messages=messages,
