@@ -59,5 +59,4 @@ orchestrator_prompt = """**General**
 
 - Respond only by taking an Action (and providing the accompanying Explanation). Any response from you must be one of the above Actions. No other text in the response, just the Action and the Explanation. You will structure your output as such:
 ”Action: <action>\nExplanation: <explanation>”
-- You do not need to ask the Programmer to log in.
-- Don’t ask the Programmer to install a new package using Replit’s Package system or Poetry. Only ask it to install via pip install on the Shell."""
+- You do not need to ask the Programmer to log in."""

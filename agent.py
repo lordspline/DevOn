@@ -1,6 +1,7 @@
 from openai import OpenAI
 from prompts.orchestrator import orchestrator_prompt
 from prompts.programmer import programmer_notes
+from prompts.notetaker import notetaker_notes
 from dotenv import load_dotenv
 import time
 import multion
@@ -34,9 +35,9 @@ class DevOn:
             }
         )
         self.programmer_logged_in = False
-
         time.sleep(1)
         self.editor_image = self.programmer["screenshot"]
+
         self.researcher = multion.create_session(
             {
                 "url": "https://www.google.com",
@@ -45,9 +46,10 @@ class DevOn:
         )
         time.sleep(1)
         self.browser_image = self.researcher["screenshot"]
+
         self.notetaker = multion.create_session(
             {
-                "url": "https://onlinenotepad.org/notepad",
+                "url": "https://anotepad.com/",
                 "includeScreenshot": True,
             }
         )
@@ -75,6 +77,9 @@ class DevOn:
                 },
             )
             print(self.programmer)
+            # time.sleep(1)
+            # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
+            # self.editor_image = self.programmer["screenshot"]
             if self.programmer["status"] == "DONE":
                 break
 
@@ -157,8 +162,34 @@ class DevOn:
                     },
                 )
                 print(self.programmer)
+                if self.programmer["status"] == "NOT SURE":
+                    self.messages.append(
+                        {
+                            "role": "user",
+                            "content": "The Programmer says: {message}\n\nYour next reply will go to the programmer.".format(
+                                message=self.programmer["message"]
+                            ),
+                        }
+                    )
+                    chat_completion = self.client.chat.completions.create(
+                        messages=self.prepare_messages(),
+                        model="gpt-4-vision-preview",
+                        # max_tokens=200,
+                    )
+                    action_arg = chat_completion.choices[0].message.content
+                    self.messages.append({"role": "assistant", "content": action_arg})
+                else:
+                    self.messages.append(
+                        {
+                            "role": "user",
+                            "content": "The Programmer says: {message}".format(
+                                message=self.programmer["message"]
+                            ),
+                        }
+                    )
                 # time.sleep(1)
                 # self.editor_image = self.programmer["screenshot"]
+                # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
                 if self.programmer["status"] == "DONE":
                     break
             time.sleep(1)
@@ -176,8 +207,17 @@ class DevOn:
                     },
                 )
                 print(self.researcher)
+                self.messages.append(
+                    {
+                        "role": "user",
+                        "content": "The Researcher says: {message}".format(
+                            message=self.researcher["message"]
+                        ),
+                    }
+                )
                 # time.sleep(1)
-                # self.editor_image = self.programmer["screenshot"]
+                # self.browser_image = self.researcher["screenshot"]
+                # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
                 if self.researcher["status"] == "DONE":
                     break
             time.sleep(1)
@@ -189,14 +229,23 @@ class DevOn:
                 self.notetaker = multion.step_session(
                     self.notetaker["session_id"],
                     {
-                        "input": action_arg,
-                        "url": "https://onlinenotepad.org/notepad",
+                        "input": action_arg + notetaker_notes,
+                        "url": "https://anotepad.com/",
                         "includeScreenshot": True,
                     },
                 )
                 print(self.notetaker)
+                self.messages.append(
+                    {
+                        "role": "user",
+                        "content": "The Notetaker says: {message}".format(
+                            message=self.notetaker["message"]
+                        ),
+                    }
+                )
                 # time.sleep(1)
-                # self.editor_image = self.programmer["screenshot"]
+                # self.scratchpad_image = self.notetaker["screenshot"]
+                # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
                 if self.notetaker["status"] == "DONE":
                     break
             time.sleep(1)
