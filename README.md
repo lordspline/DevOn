@@ -11,3 +11,7 @@ Let's see how far this goes in 2 weeks.
 Day 1:
 
 https://github.com/lordspline/DevOn/assets/74811063/051f1a35-e4cd-4a68-99fc-038a9e600208
+
+Day 2:
+
+https://github.com/lordspline/DevOn/assets/74811063/a8bd9d65-42de-4bf1-a721-79f9b4d772ef
