@@ -17,3 +17,9 @@ Day 2:
 Working with Replit is evidently problematic.
 
 https://github.com/lordspline/DevOn/assets/74811063/a8bd9d65-42de-4bf1-a721-79f9b4d772ef
+
+Day 3:
+
+Since working with Replit was problematic, we got rid of it. A terminal is all you need. Still some kinks to be hammered out but this will work way better.
+
+https://github.com/lordspline/DevOn/assets/74811063/412077bc-8c83-4885-a2fd-cb62ede454fe
