@@ -22,4 +22,6 @@ Day 3:
 
 Since working with Replit was problematic, we got rid of it. A terminal is all you need. Still some kinks to be hammered out but this will work way better.
 
+The main problem that remains is the terminal text input latency, but I have some ideas for solving this.
+
 https://github.com/lordspline/DevOn/assets/74811063/412077bc-8c83-4885-a2fd-cb62ede454fe
