@@ -25,3 +25,9 @@ Since working with Replit was problematic, we got rid of it. A terminal is all y
 The main problem that remains is the terminal text input latency, but I have some ideas for solving this.
 
 https://github.com/lordspline/DevOn/assets/74811063/412077bc-8c83-4885-a2fd-cb62ede454fe
+
+Day 4:
+
+Took a little detour today - prototyped a Keyboard and Mouse-only Agent. Works surprisingly well, will try and use this as the Programmer.
+
+https://github.com/lordspline/DevOn/assets/74811063/b48c2f56-f63f-4251-bbf5-7d6719ac4063
