@@ -156,7 +156,7 @@ class DevOn:
                 self.programmer = multion.step_session(
                     self.programmer["session_id"],
                     {
-                        "input": action_arg + "\n\n",
+                        "input": action_arg,
                         "url": runpod_url,
                         "includeScreenshot": True,
                     },

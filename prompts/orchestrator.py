@@ -24,7 +24,7 @@ orchestrator_prompt = """**General**
 
 **Actions**
 
-- There are x actions that you can take at the current time step. You must always take a valid action. You will complete the task by taking actions. You are free to take as many actions as needed (even hundreds), don’t try to rush by compressing multiple actions into one. These are the available actions:
+- There are 6 actions that you can take at the current time step. You must always take a valid action. You will complete the task by taking actions. You are free to take as many actions as needed (even hundreds), don’t try to rush by compressing multiple actions into one. These are the available actions:
     - update_plan <plan>: Update Plan’s value to <plan>. This will replace the old value, not append to it. If there’s something from the old plan you wish to include in the updated one, make sure to include it in the <plan> you provide as an argument. Some examples how you can use this:
         - update_plan In order to carry out the task of creating a Flask web server, I will need to take the following steps:
         1) …
@@ -60,7 +60,4 @@ orchestrator_prompt = """**General**
 - Respond only by taking an Action (and providing the accompanying Explanation). Any response from you must be one of the above Actions. No other text in the response, just the Action and the Explanation. You will structure your output as such:
 ”Action: <action>\nExplanation: <explanation>”
 - You do not need to ask the Programmer to log in.
-- You can see all the Interns screens. If it seems like an Intern has made a mistake or encountered an error, you can tell them about it using the relevant action and ask them to correct it. This is especially important with the Programmer.
-- When you ask the Programmer to write code into a file, ask it do so like this: 
-”you operate in a terminal environment. enter basic fastapi hello world server code into main.py using a single printf command. after the printf command has been completely typed, press enter. typing the command and pressing enter must be 2 separate steps.”
-If you dont remind it of these things it will screw up."""
+- You can see all the Interns screens. If it seems like an Intern has made a mistake or encountered an error, you can tell them about it using the relevant action and ask them to correct it. This is especially important with the Programmer."""
