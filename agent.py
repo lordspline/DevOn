@@ -28,29 +28,33 @@ class DevOn:
         self.editor_image = editor_image
         self.browser_image = browser_image
         self.scratchpad_image = scratchpad_image
+        self.local = os.getenv("WHERE_EXECUTE") == "local"
 
         self.programmer = multion.sessions.create(
-            url="https://replit.com/login", local=True, include_screenshot=True
+            url="https://replit.com/login", local=self.local, include_screenshot=True
         )
         self.programmer_logged_in = False
         time.sleep(1)
+        self.editor_image = self.programmer.screenshot
         # self.editor_image = multion.sessions.screenshot(
         #     session_id=self.programmer.session_id
         # ).screenshot
-        print(self.programmer)
+        # print(self.programmer)
 
         self.researcher = multion.sessions.create(
-            url="https://www.google.com", local=True, include_screenshot=True
+            url="https://www.google.com", local=self.local, include_screenshot=True
         )
         time.sleep(1)
+        self.browser_image = self.researcher.screenshot
         # self.browser_image = multion.sessions.screenshot(
         #     session_id=self.researcher.session_id
         # ).screenshot
 
         self.notetaker = multion.sessions.create(
-            url="https://anotepad.com/", local=True, include_screenshot=True
+            url="https://anotepad.com/", local=self.local, include_screenshot=True
         )
         time.sleep(1)
+        self.scratchpad_image = self.notetaker.screenshot
         # self.scratchpad_image = multion.sessions.screenshot(
         #     session_id=self.notetaker.session_id
         # ).screenshot
@@ -62,16 +66,20 @@ class DevOn:
         self.client = OpenAI()
 
     def programmer_login(self):
+        if self.local:
+            cmd = "Create a new Python REPL."
+        else:
+            cmd = "Log in with the email {email} and the password {password}. Then create a new Python REPL.".format(
+                email=replit_email, password=replit_password
+            )
         while True:
             self.programmer = multion.sessions.step(
                 self.programmer.session_id,
-                cmd="Create a new directory called multiondev, go into it, create a file called main.py, cat main.py"
-                + "\n\n"
-                + programmer_notes,
+                cmd=cmd + "\n\n" + programmer_notes,
                 url="https://replit.com/login",
                 include_screenshot=True,
             )
-            print(self.programmer)
+            # print(self.programmer)
             # time.sleep(1)
             # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
             # self.editor_image = self.programmer["screenshot"]

@@ -1,0 +1,1 @@
+env WHERE_EXECUTE="remote" gradio app.py
