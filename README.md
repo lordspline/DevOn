@@ -6,8 +6,6 @@ We use 3 separate MultiOn Agents, one each for programming, researching and note
 
 Their activities are orchestrated and supervised by an overarching GPT-4V
 
-Let's see how far this goes in 2 weeks.
-
 Setup:
 
 - Create a .env.local and set the following env variables:
