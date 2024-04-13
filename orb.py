@@ -56,8 +56,8 @@ class Orb:
         img = plt.imread(self.screenshot)
         print(img.shape)
         H, W, C = img.shape
-        img[0:H:40] = [1, 0, 0, 1]
-        img[:, 0:W:60] = [1, 0, 0, 1]
+        # img[0:H:40] = [1, 0, 0, 1]
+        # img[:, 0:W:60] = [1, 0, 0, 1]
         img[
             self.mouse_pos[1] - 6 : self.mouse_pos[1] + 6,
             self.mouse_pos[0] - 6 : self.mouse_pos[0] + 6,
@@ -78,13 +78,22 @@ class Orb:
         self.page.wait_for_load_state("domcontentloaded")
         snapshot = self.page.evaluate(
             """() => {
+            
+                const isVisible = (elem) => {
+                    const style = getComputedStyle(elem);
+                    if (style.display === 'none') return false;
+                    if (style.visibility !== 'visible') return false;
+                    if (style.opacity < 0.1) return false;
+                    return true;
+                }
+
                 var wl = window.pageXOffset
                 var wt = window.pageYOffset
                 var wr = window.pageXOffset + window.screen.width
                 var wb = window.pageYOffset + window.screen.height 
 
                 var allowedTags = ["A", "INPUT", "BUTTON", "TEXTAREA", "P", "SPAN", "SELECT", "LI", "IMG"]
-                var allowedAttributes = ['aria-label', 'data-name', 'href', 'name', 'type', 'placeholder', 'value', 'role', 'title']
+                var allowedAttributes = ['aria-label', 'name', 'type', 'placeholder', 'value', 'role', 'title']
 
                 var all = document.getElementsByTagName("*");
                 var snapshot = [];
@@ -110,7 +119,7 @@ class Orb:
                             var attributes = node.attributes
                             for (var j=0; j<attributes.length; j++) {
                                 if (attributes[j].name === "id") {
-                                    attrString += "html_id=" + attributes[j].value + " "
+                                    attrString += "id=" + attributes[j].value + " "
                                 }
                                 else if (allowedAttributes.includes(attributes[j].name) && attributes[j].value !== "") {
                                     attrString += attributes[j].name + "='" + attributes[j].value + "' "
@@ -118,21 +127,30 @@ class Orb:
                             }
                         }
 
-                        var bboxString = "left=" + Math.floor(l) + " top=" + Math.floor(t) + " right=" + Math.floor(r) + " bottom=" + Math.floor(b)
+                        var bboxString = "center_x=" + Math.floor((l+r)/2) + " center_y=" + Math.floor((t+b)/2) + " left=" + Math.floor(l) + " top=" + Math.floor(t) + " right=" + Math.floor(r) + " bottom=" + Math.floor(b)
 
-                        var nodeValue = node.textContent
+                        var nodeValue = all[i].textContent || all[i].innerText
                         if (node.tagName === "INPUT" && node['type'] === "text") {
-                            nodeValue = node.value
+                            nodeValue = all[i].value
                         }
                         if (node.tagName === "TEXTAREA") {
-                            nodeValue = node.value
+                            nodeValue = all[i].value
+                        }
+                        if (node.tagName === "BUTTON") {
+                            if (all[i].disabled === true) {
+                                nodeValue += " (This Button is Disabled)"
+                            }
                         }
                         if ((node.tagName === "P" || node.tagName === "SPAN") && (nodeValue.toString() === "")) {
                             continue
                         }
 
+                        if (!isVisible(all[i])) {
+                            nodeValue += " (This Element is Not Visible)"
+                        }
+
                         // construct node string
-                        var nodeString = "<" + node.tagName + " id=" + current_id + attrString + bboxString + ">" + nodeValue + "</" + node.tagName + ">"
+                        var nodeString = "<" + node.tagName + " " + bboxString + " " + "z=" + getComputedStyle(all[i]).zIndex + " " + attrString + ">" + nodeValue + "</" + node.tagName + ">"
                         // if (node.tagName != 'BUTTON' && (node.getAttribute('onclick')!=null || node.getAttribute('href')!=null)) {
                         //     nodeString = "<" + "BUTTON" + " id=" + current_id + attrString + bboxString + ">" + nodeValue + "</" + "BUTTON" + ">"
                         // }
@@ -148,7 +166,7 @@ class Orb:
                 return snapshot 
         }"""
         )
-        # print("\n".join(snapshot))
+        print("\n".join(snapshot))
         return "\n".join(snapshot)
 
     def prepare_messages(self, type="gpt"):
@@ -212,7 +230,8 @@ class Orb:
 
     def execute_action(self, action):
 
-        action = action.replace("\n", "")
+        if action[:7] != "keytype":
+            action = action.replace("\n", "")
 
         action_func = action.split(" ", 1)[0]
 
@@ -228,11 +247,13 @@ class Orb:
             return
         elif action_func == "keytype":
             action_arg = action.split(" ", 1)[1]
-            if "\n" not in action_arg:
+            print(action_arg.split("\n"))
+            split = action_arg.split("\n")
+            if len(split) == 1 or (len(split) == 2 and split[1] == ""):
+                print("yay")
                 self.page.keyboard.type(action_arg)
                 return
             for line in action_arg.split("\n"):
-                print(line)
                 if line == "":
                     self.page.keyboard.press("Enter")
                 else:
@@ -320,6 +341,12 @@ if __name__ == "__main__":
 
     orb = Orb("https://replit.com/login")
     for r in orb.run(
-        "log in using the email multiontemp@gmail.com and password multiontemp, create a python repl (remember to select the python language option) and put some basic hello world fastapi server code into it."
+        "log in using the email multiontemp@gmail.com and password multiontemp, create a python repl (remember to select the python language option in the template dropdown) giving it an appropriate name. Then create a new file called temp.py. Then put some basic hello world fastapi server code into it and run it."
     ):
         print(r)
+
+    # orb = Orb("https://anotepad.com/")
+    # for r in orb.run(
+    #     "title the note fastapi temp and write some basic hello world server fastapi code in the notepad."
+    # ):
+    #     print(r)

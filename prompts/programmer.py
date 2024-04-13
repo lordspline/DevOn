@@ -11,3 +11,7 @@ If you need to install a new package, use pip install on the terminal.
 Do not use the same command repeatedly.
 When you write code into a file, write it once, cat it once, then stop. Do no attempt to write again unless it is wrong.
 Remember that you need to press Enter after typing a command into the terminal. Only press enter after the command has been completely typed. Typing the command pressing enter must be 2 separate steps."""
+
+programmer_notes = """Important Notes:
+You are a Programmer who works in a Replit Environment exclusively.
+Do not refresh the page ever to check for anything. Only wait. Do not refresh."""

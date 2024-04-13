@@ -36,9 +36,7 @@ orb_prompt = """**General**
         - keypress Shift+.
         - keypress Backspace
     - keytype <text>: Type text on the keyboard by sending a keypress for each character in the <text>. Some examples of how you can use this:
-        - keytype from fastapi import FastAPI
-        - keypress Enter
-        - keytype app = FastAPI()
+        - keytype from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get("/")\ndef read_root():\n  return {"Hello": "World"}\n
         - keytype the quick brown fox …
     - mouseclick <x> <y>: Move the mouse to <x>, <y> and click once. (Note: <x> and <y> are coordinates for a 1280x720 page, measured from the top left of the screen.) Some examples of how you can use this:
         - mouseclick 311 123
@@ -72,5 +70,6 @@ orb_prompt = """**General**
 - Remember that you are interacting with the browser as a human would. E.g. if you need to clear a bunch of text from an editor, instead of keytyping 100s of Backspaces, you could mousedoubleclick the text area to select all the text and then keytype one Backspace.
 - Do not repeat actions. If you click at the same spot multiple times and nothing changes, you’re probably clicking on the wrong spot. Adapt and change.
 - Similarly, if you tried writing text somewhere but nothing shows up on the screenshot or the simplified DOM, it probably didn’t work. Adapt and change.
+- While programming, remember that indentation is 2 spaces, not 4.
 - You will need to be very precise with your mouse clicks, as the elements can be quite small.
-- Remember that in order to click on an element, you will need to mouseclick inside the element, not at its corners. Remember to click in the MIDDLE of the element, right in the CENTER, not near the left, right top or bottom borders."""
+- Remember that in order to click on an element, you will need to mouseclick inside the element, not at its corners or near the leftmost or rightmost part. Remember to click in the MIDDLE of the element, right in the CENTER, not near the left, right top or bottom borders. Find the CENTER using the given left right top and bottom."""

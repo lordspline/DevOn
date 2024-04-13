@@ -5,6 +5,7 @@ from prompts.notetaker import notetaker_notes
 from dotenv import load_dotenv
 import time
 import multion
+from multion.client import MultiOn
 import os
 
 load_dotenv(".env.local")
@@ -13,7 +14,8 @@ replit_email = os.getenv("REPLIT_EMAIL")
 replit_password = os.getenv("REPLIT_PASSWORD")
 
 multion_api_key = os.getenv("MULTION_API_KEY")
-multion.login(use_api=True, multion_api_key=multion_api_key)
+# multion.login(use_api=True, multion_api_key=multion_api_key)
+multion = MultiOn(api_key=multion_api_key)
 
 runpod_url = os.getenv("RUNPOD_URL")
 
@@ -27,64 +29,57 @@ class DevOn:
         self.browser_image = browser_image
         self.scratchpad_image = scratchpad_image
 
-        self.programmer = multion.create_session(
-            {
-                # "input": "Create a new directory called multiondev, go into it, create a file called main.py, cat main.py",
-                "url": runpod_url,
-                "includeScreenshot": True,
-            }
+        self.programmer = multion.sessions.create(
+            url="https://replit.com/login", local=True, include_screenshot=True
         )
         self.programmer_logged_in = False
         time.sleep(1)
-        self.editor_image = self.programmer["screenshot"]
+        # self.editor_image = multion.sessions.screenshot(
+        #     session_id=self.programmer.session_id
+        # ).screenshot
+        print(self.programmer)
 
-        self.researcher = multion.create_session(
-            {
-                "url": "https://www.google.com",
-                "includeScreenshot": True,
-            }
+        self.researcher = multion.sessions.create(
+            url="https://www.google.com", local=True, include_screenshot=True
         )
         time.sleep(1)
-        self.browser_image = self.researcher["screenshot"]
+        # self.browser_image = multion.sessions.screenshot(
+        #     session_id=self.researcher.session_id
+        # ).screenshot
 
-        self.notetaker = multion.create_session(
-            {
-                "url": "https://anotepad.com/",
-                "includeScreenshot": True,
-            }
+        self.notetaker = multion.sessions.create(
+            url="https://anotepad.com/", local=True, include_screenshot=True
         )
         time.sleep(1)
-        self.scratchpad_image = self.notetaker["screenshot"]
+        # self.scratchpad_image = multion.sessions.screenshot(
+        #     session_id=self.notetaker.session_id
+        # ).screenshot
 
         self.done = True
         self.task = ""
-        # self.plans = [""]
         self.plan = ""
-        # self.explanations = []
         self.messages = []
         self.client = OpenAI()
 
     def programmer_login(self):
         while True:
-            self.programmer = multion.step_session(
-                self.programmer["session_id"],
-                {
-                    "input": "Create a new directory called multiondev, go into it, create a file called main.py, cat main.py"
-                    + "\n\n"
-                    + programmer_notes,
-                    "url": runpod_url,
-                    "includeScreenshot": True,
-                },
+            self.programmer = multion.sessions.step(
+                self.programmer.session_id,
+                cmd="Create a new directory called multiondev, go into it, create a file called main.py, cat main.py"
+                + "\n\n"
+                + programmer_notes,
+                url="https://replit.com/login",
+                include_screenshot=True,
             )
             print(self.programmer)
             # time.sleep(1)
             # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
             # self.editor_image = self.programmer["screenshot"]
-            if self.programmer["status"] == "DONE":
+            if self.programmer.status == "DONE":
                 break
 
         time.sleep(1)
-        self.editor_image = self.programmer["screenshot"]
+        self.editor_image = self.programmer.screenshot
 
     def prepare_messages(self):
         messages = [
@@ -153,21 +148,19 @@ class DevOn:
         elif action_func == "programmer":
             action_arg = action.split(" ", 1)[1]
             while True:
-                self.programmer = multion.step_session(
-                    self.programmer["session_id"],
-                    {
-                        "input": action_arg,
-                        "url": runpod_url,
-                        "includeScreenshot": True,
-                    },
+                self.programmer = multion.sessions.step(
+                    self.programmer.session_id,
+                    cmd=action_arg + "\n\n" + programmer_notes,
+                    url="https://replit.com/login",
+                    include_screenshot=True,
                 )
                 print(self.programmer)
-                if self.programmer["status"] == "NOT SURE":
+                if self.programmer.status == "NOT SURE":
                     self.messages.append(
                         {
                             "role": "user",
                             "content": "The Programmer says: {message}\n\nYour next reply will go to the programmer.".format(
-                                message=self.programmer["message"]
+                                message=self.programmer.message
                             ),
                         }
                     )
@@ -183,82 +176,78 @@ class DevOn:
                         {
                             "role": "user",
                             "content": "The Programmer says: {message}".format(
-                                message=self.programmer["message"]
+                                message=self.programmer.message
                             ),
                         }
                     )
                 # time.sleep(1)
                 # self.editor_image = self.programmer["screenshot"]
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
-                if self.programmer["status"] == "DONE":
+                if self.programmer.status == "DONE":
                     break
             time.sleep(1)
-            self.editor_image = self.programmer["screenshot"]
+            self.editor_image = self.programmer.screenshot
             return
         elif action_func == "researcher":
             action_arg = action.split(" ", 1)[1]
             while True:
-                self.researcher = multion.step_session(
-                    self.researcher["session_id"],
-                    {
-                        "input": action_arg,
-                        "url": "https://www.google.com",
-                        "includeScreenshot": True,
-                    },
+                self.researcher = multion.sessions.step(
+                    self.researcher.session_id,
+                    cmd=action_arg,
+                    url="https://www.google.com",
+                    include_screenshot=True,
                 )
                 print(self.researcher)
                 self.messages.append(
                     {
                         "role": "user",
                         "content": "The Researcher says: {message}".format(
-                            message=self.researcher["message"]
+                            message=self.researcher.message
                         ),
                     }
                 )
                 # time.sleep(1)
                 # self.browser_image = self.researcher["screenshot"]
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
-                if self.researcher["status"] == "DONE":
+                if self.researcher.status == "DONE":
                     break
             time.sleep(1)
-            self.browser_image = self.researcher["screenshot"]
+            self.browser_image = self.researcher.screenshot
             return
         elif action_func == "notetaker":
             action_arg = action.split(" ", 1)[1]
             while True:
-                self.notetaker = multion.step_session(
-                    self.notetaker["session_id"],
-                    {
-                        "input": action_arg + notetaker_notes,
-                        "url": "https://anotepad.com/",
-                        "includeScreenshot": True,
-                    },
+                self.notetaker = multion.sessions.step(
+                    self.notetaker.session_id,
+                    cmd=action_arg + "\n\n" + notetaker_notes,
+                    url="https://anotepad.com/",
+                    include_screenshot=True,
                 )
                 print(self.notetaker)
                 self.messages.append(
                     {
                         "role": "user",
                         "content": "The Notetaker says: {message}".format(
-                            message=self.notetaker["message"]
+                            message=self.notetaker.message
                         ),
                     }
                 )
                 # time.sleep(1)
                 # self.scratchpad_image = self.notetaker["screenshot"]
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
-                if self.notetaker["status"] == "DONE":
+                if self.notetaker.status == "DONE":
                     break
             time.sleep(1)
-            self.scratchpad_image = self.notetaker["screenshot"]
+            self.scratchpad_image = self.notetaker.screenshot
             return
         elif action_func == "clarify":
             action_arg = action.split(" ", 1)[1]
             return
 
     def orchestrator(self):
-        if not self.programmer_logged_in:
-            self.programmer_login()
-            self.programmer_logged_in = True
+        # if not self.programmer_logged_in:
+        #     self.programmer_login()
+        #     self.programmer_logged_in = True
         messages = self.prepare_messages()
         chat_completion = self.client.chat.completions.create(
             messages=messages,
