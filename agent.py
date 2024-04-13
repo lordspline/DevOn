@@ -17,10 +17,9 @@ multion_api_key = os.getenv("MULTION_API_KEY")
 # multion.login(use_api=True, multion_api_key=multion_api_key)
 multion = MultiOn(api_key=multion_api_key)
 
-runpod_url = os.getenv("RUNPOD_URL")
+# runpod_url = os.getenv("RUNPOD_URL")
 
-image_temp_1 = "https://cdn.sanity.io/images/bj34pdbp/migration/06f44b489e9fea1004ebd8249a0a633f52fd925f-1096x702.png?w=3840&q=75&fit=clip&auto=format"
-image_temp_2 = "https://multion-client-screenshots.s3.us-east-2.amazonaws.com/0cea8653-bf81-41ac-84f2-9b08f8f2f2fa_e9209e98-8863-44e4-bc16-0ed46b1e56ca_remote_screenshot.png"
+image_temp = "https://miro.medium.com/v2/resize:fit:1200/0*n-2bW82Z6m6U2bij.jpeg"
 
 
 class DevOn:
@@ -34,30 +33,30 @@ class DevOn:
             url="https://replit.com/login", local=self.local, include_screenshot=True
         )
         self.programmer_logged_in = False
+        # self.editor_image = self.programmer.screenshot
+        self.editor_image = multion.sessions.screenshot(
+            session_id=self.programmer.session_id
+        ).screenshot
         time.sleep(1)
-        self.editor_image = self.programmer.screenshot
-        # self.editor_image = multion.sessions.screenshot(
-        #     session_id=self.programmer.session_id
-        # ).screenshot
         # print(self.programmer)
 
         self.researcher = multion.sessions.create(
             url="https://www.google.com", local=self.local, include_screenshot=True
         )
+        # self.browser_image = self.researcher.screenshot
+        self.browser_image = multion.sessions.screenshot(
+            session_id=self.researcher.session_id
+        ).screenshot
         time.sleep(1)
-        self.browser_image = self.researcher.screenshot
-        # self.browser_image = multion.sessions.screenshot(
-        #     session_id=self.researcher.session_id
-        # ).screenshot
 
         self.notetaker = multion.sessions.create(
             url="https://anotepad.com/", local=self.local, include_screenshot=True
         )
+        # self.scratchpad_image = self.notetaker.screenshot
+        self.scratchpad_image = multion.sessions.screenshot(
+            session_id=self.notetaker.session_id
+        ).screenshot
         time.sleep(1)
-        self.scratchpad_image = self.notetaker.screenshot
-        # self.scratchpad_image = multion.sessions.screenshot(
-        #     session_id=self.notetaker.session_id
-        # ).screenshot
 
         self.done = True
         self.task = ""
@@ -79,15 +78,22 @@ class DevOn:
                 url="https://replit.com/login",
                 include_screenshot=True,
             )
-            # print(self.programmer)
+            print(self.programmer)
+            print(
+                multion.sessions.screenshot(
+                    session_id=self.programmer.session_id
+                ).screenshot
+            )
             # time.sleep(1)
             # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
             # self.editor_image = self.programmer["screenshot"]
             if self.programmer.status == "DONE":
                 break
 
+        self.editor_image = multion.sessions.screenshot(
+            session_id=self.programmer.session_id
+        ).screenshot
         time.sleep(1)
-        self.editor_image = self.programmer.screenshot
 
     def prepare_messages(self):
         messages = [
@@ -193,8 +199,11 @@ class DevOn:
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
                 if self.programmer.status == "DONE":
                     break
+            self.editor_image = multion.sessions.screenshot(
+                session_id=self.programmer.session_id
+            ).screenshot
+            print(self.editor_image)
             time.sleep(1)
-            self.editor_image = self.programmer.screenshot
             return
         elif action_func == "researcher":
             action_arg = action.split(" ", 1)[1]
@@ -219,8 +228,11 @@ class DevOn:
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
                 if self.researcher.status == "DONE":
                     break
+            self.browser_image = multion.sessions.screenshot(
+                session_id=self.researcher.session_id
+            ).screenshot
+            print(self.browser_image)
             time.sleep(1)
-            self.browser_image = self.researcher.screenshot
             return
         elif action_func == "notetaker":
             action_arg = action.split(" ", 1)[1]
@@ -245,17 +257,20 @@ class DevOn:
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
                 if self.notetaker.status == "DONE":
                     break
+            self.scratchpad_image = multion.sessions.screenshot(
+                session_id=self.notetaker.session_id
+            ).screenshot
+            print(self.scratchpad_image)
             time.sleep(1)
-            self.scratchpad_image = self.notetaker.screenshot
             return
         elif action_func == "clarify":
             action_arg = action.split(" ", 1)[1]
             return
 
     def orchestrator(self):
-        # if not self.programmer_logged_in:
-        #     self.programmer_login()
-        #     self.programmer_logged_in = True
+        if not self.programmer_logged_in:
+            self.programmer_login()
+            self.programmer_logged_in = True
         messages = self.prepare_messages()
         chat_completion = self.client.chat.completions.create(
             messages=messages,
