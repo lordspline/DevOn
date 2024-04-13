@@ -8,6 +8,7 @@ orb_app.py
 dev
 prompts/orb.py
 screenshots
+temp
 
 # C extensions
 *.so
