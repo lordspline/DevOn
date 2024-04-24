@@ -37,6 +37,7 @@ class DevOn:
         self.editor_image = multion.sessions.screenshot(
             session_id=self.programmer.session_id
         ).screenshot
+        print(self.editor_image)
         time.sleep(1)
         # print(self.programmer)
 

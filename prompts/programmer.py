@@ -13,5 +13,5 @@
 # Remember that you need to press Enter after typing a command into the terminal. Only press enter after the command has been completely typed. Typing the command pressing enter must be 2 separate steps."""
 
 programmer_notes = """Important Notes:
-You are a Programmer who works in a Replit Environment exclusively.
+You are a Programmer who works in a Replit Environment exclusively. If you need to install a package, use the Shell and not the Console.
 Do not refresh the page ever to check for anything. Only wait. Do not refresh."""
