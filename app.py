@@ -4,9 +4,10 @@ import time
 from agent import DevOn
 
 image_temp = "https://miro.medium.com/v2/resize:fit:1200/0*n-2bW82Z6m6U2bij.jpeg"
-devon = DevOn(
-    editor_image=image_temp, browser_image=image_temp, scratchpad_image=image_temp
-)
+# devon = DevOn(
+#     editor_image=image_temp, browser_image=image_temp, scratchpad_image=image_temp
+# )
+devon = None
 
 
 def add_message(history, message):
@@ -44,21 +45,30 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
                 show_label=False,
             )
         with gr.Column():
-            editor_view = gr.Image(
-                devon.editor_image,
-                label="Editor",
-            )
+            if devon:
+                editor_view = gr.Image(
+                    devon.editor_image,
+                    label="Editor",
+                )
+            else:
+                editor_view = gr.Image()
     with gr.Row():
         with gr.Column():
-            browser_view = gr.Image(
-                devon.browser_image,
-                label="Browser",
-            )
+            if devon:
+                browser_view = gr.Image(
+                    devon.browser_image,
+                    label="Browser",
+                )
+            else:
+                browser_view = gr.Image()
         with gr.Column():
-            scratchpad_view = gr.Image(
-                devon.scratchpad_image,
-                label="Scratchpad",
-            )
+            if devon:
+                scratchpad_view = gr.Image(
+                    devon.scratchpad_image,
+                    label="Scratchpad",
+                )
+            else:
+                scratchpad_view = gr.Image()
 
     chat_msg = chat_input.submit(
         add_message, [chatbot, chat_input], [chatbot, chat_input]
@@ -74,5 +84,8 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
     # chatbot.like(print_like_dislike, None, None)
 
 if __name__ == "__main__":
+    devon = DevOn(
+        editor_image=image_temp, browser_image=image_temp, scratchpad_image=image_temp
+    )
     demo.queue()
     demo.launch()

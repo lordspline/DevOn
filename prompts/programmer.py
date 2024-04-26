@@ -14,4 +14,4 @@
 
 programmer_notes = """Important Notes:
 You are a Programmer who works in a Replit Environment exclusively. If you need to install a package, use the Shell and not the Console.
-Do not refresh the page ever to check for anything. Only wait. Do not refresh."""
+Do not refresh the page ever to check for anything. Only wait. Do not refresh. Do not create new files. Write your code in currently open editor window itself. Do not type double quotation marks. If you are asked to type code containing them, use single quotes instead."""

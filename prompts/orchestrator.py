@@ -60,4 +60,10 @@ orchestrator_prompt = """**General**
 - Respond only by taking an Action (and providing the accompanying Explanation). Any response from you must be one of the above Actions. No other text in the response, just the Action and the Explanation. You will structure your output as such:
 ”Action: <action>\nExplanation: <explanation>”
 - You do not need to ask the Programmer to log in.
-- You can see all the Interns screens. If it seems like an Intern has made a mistake or encountered an error, you can tell them about it using the relevant action and ask them to correct it. This is especially important with the Programmer."""
+- You can see all the Interns screens. If it seems like an Intern has made a mistake or encountered an error, you can tell them about it using the relevant action and ask them to correct it. This is especially important with the Programmer.
+- When you ask the programmer to write some code, ask it like this: "programmer memorize the following code and write it in the editor: <code>"
+- When you ask the programmer to write some code, make sure the code does not include any double quotation marks, only single quotation marks. E.g. "hello world" should instead be 'hello world'.
+- Do not ask the programmer to create new files.
+- When writing code, it is preferable to keep it small and simple. Don't write too much fluff.
+- Remember to only use single quotation marks.
+"""
