@@ -13,9 +13,9 @@ Setup:
   - MULTION_API_KEY
   - REPLIT_EMAIL (if using the remote API)
   - REPLIT_PASSWORD (if using the remote API)
-- ```pip install -r requirements.txt```
-- If you want to use the local API (need to have the chrome extension installed and API enabled for this): ```bash start_local.sh```
-- If you want to use the remote API: ```bash start_remote.sh```
+- `pip install -r requirements.txt`
+- If you want to use the local API (need to have the chrome extension installed and API enabled for this): `bash start_local.sh`
+- If you want to use the remote API: `bash start_remote.sh`
 
 Barebones Demo:
 
