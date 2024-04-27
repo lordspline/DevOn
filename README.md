@@ -19,4 +19,7 @@ Setup:
 
 Barebones Demo:
 
-https://github.com/lordspline/DevOn/assets/74811063/a8bd9d65-42de-4bf1-a721-79f9b4d772ef
+
+
+https://github.com/lordspline/DevOn/assets/74811063/6de8ba85-3f43-415b-8fd9-eff6b2ed29c5
+
