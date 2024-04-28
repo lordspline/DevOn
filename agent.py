@@ -10,12 +10,11 @@ import os
 
 load_dotenv(".env.local")
 
-replit_email = os.getenv("REPLIT_EMAIL")
-replit_password = os.getenv("REPLIT_PASSWORD")
+# replit_email = os.getenv("REPLIT_EMAIL")
+# replit_password = os.getenv("REPLIT_PASSWORD")
 
-multion_api_key = os.getenv("MULTION_API_KEY")
+# multion_api_key = os.getenv("MULTION_API_KEY")
 # multion.login(use_api=True, multion_api_key=multion_api_key)
-multion = MultiOn(api_key=multion_api_key)
 
 # runpod_url = os.getenv("RUNPOD_URL")
 
@@ -23,38 +22,53 @@ image_temp = "https://miro.medium.com/v2/resize:fit:1200/0*n-2bW82Z6m6U2bij.jpeg
 
 
 class DevOn:
-    def __init__(self, editor_image, browser_image, scratchpad_image):
+    def __init__(
+        self,
+        editor_image,
+        browser_image,
+        scratchpad_image,
+        multion_api_key,
+        openai_api_key,
+        replit_email,
+        replit_password,
+    ):
+        print(multion_api_key, openai_api_key)
         self.editor_image = editor_image
         self.browser_image = browser_image
         self.scratchpad_image = scratchpad_image
         self.local = os.getenv("WHERE_EXECUTE") == "local"
 
-        self.programmer = multion.sessions.create(
+        self.multion = MultiOn(api_key=multion_api_key)
+
+        self.replit_email = replit_email
+        self.replit_password = replit_password
+
+        self.programmer = self.multion.sessions.create(
             url="https://replit.com/login", local=self.local, include_screenshot=True
         )
         self.programmer_logged_in = False
         # self.editor_image = self.programmer.screenshot
-        self.editor_image = multion.sessions.screenshot(
+        self.editor_image = self.multion.sessions.screenshot(
             session_id=self.programmer.session_id
         ).screenshot
         print(self.editor_image)
         time.sleep(1)
         # print(self.programmer)
 
-        self.researcher = multion.sessions.create(
+        self.researcher = self.multion.sessions.create(
             url="https://www.google.com", local=self.local, include_screenshot=True
         )
         # self.browser_image = self.researcher.screenshot
-        self.browser_image = multion.sessions.screenshot(
+        self.browser_image = self.multion.sessions.screenshot(
             session_id=self.researcher.session_id
         ).screenshot
         time.sleep(1)
 
-        self.notetaker = multion.sessions.create(
+        self.notetaker = self.multion.sessions.create(
             url="https://anotepad.com/", local=self.local, include_screenshot=True
         )
         # self.scratchpad_image = self.notetaker.screenshot
-        self.scratchpad_image = multion.sessions.screenshot(
+        self.scratchpad_image = self.multion.sessions.screenshot(
             session_id=self.notetaker.session_id
         ).screenshot
         time.sleep(1)
@@ -63,17 +77,17 @@ class DevOn:
         self.task = ""
         self.plan = ""
         self.messages = []
-        self.client = OpenAI()
+        self.client = OpenAI(api_key=openai_api_key)
 
     def programmer_login(self):
         if self.local:
             cmd = "Create a new Python REPL."
         else:
             cmd = "Log in with the email {email} and the password {password}. Then create a new Python REPL.".format(
-                email=replit_email, password=replit_password
+                email=self.replit_email, password=self.replit_password
             )
         while True:
-            self.programmer = multion.sessions.step(
+            self.programmer = self.multion.sessions.step(
                 self.programmer.session_id,
                 cmd=cmd + "\n\n" + programmer_notes,
                 url="https://replit.com/login",
@@ -81,7 +95,7 @@ class DevOn:
             )
             print(self.programmer)
             print(
-                multion.sessions.screenshot(
+                self.multion.sessions.screenshot(
                     session_id=self.programmer.session_id
                 ).screenshot
             )
@@ -91,7 +105,7 @@ class DevOn:
             if self.programmer.status == "DONE":
                 break
 
-        self.editor_image = multion.sessions.screenshot(
+        self.editor_image = self.multion.sessions.screenshot(
             session_id=self.programmer.session_id
         ).screenshot
         time.sleep(1)
@@ -163,7 +177,7 @@ class DevOn:
         elif action_func == "programmer":
             action_arg = action.split(" ", 1)[1]
             while True:
-                self.programmer = multion.sessions.step(
+                self.programmer = self.multion.sessions.step(
                     self.programmer.session_id,
                     cmd=action_arg + "\n\n" + programmer_notes,
                     url="https://replit.com/login",
@@ -200,7 +214,7 @@ class DevOn:
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
                 if self.programmer.status == "DONE":
                     break
-            self.editor_image = multion.sessions.screenshot(
+            self.editor_image = self.multion.sessions.screenshot(
                 session_id=self.programmer.session_id
             ).screenshot
             print(self.editor_image)
@@ -209,7 +223,7 @@ class DevOn:
         elif action_func == "researcher":
             action_arg = action.split(" ", 1)[1]
             while True:
-                self.researcher = multion.sessions.step(
+                self.researcher = self.multion.sessions.step(
                     self.researcher.session_id,
                     cmd=action_arg,
                     url="https://www.google.com",
@@ -229,7 +243,7 @@ class DevOn:
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
                 if self.researcher.status == "DONE":
                     break
-            self.browser_image = multion.sessions.screenshot(
+            self.browser_image = self.multion.sessions.screenshot(
                 session_id=self.researcher.session_id
             ).screenshot
             print(self.browser_image)
@@ -238,7 +252,7 @@ class DevOn:
         elif action_func == "notetaker":
             action_arg = action.split(" ", 1)[1]
             while True:
-                self.notetaker = multion.sessions.step(
+                self.notetaker = self.multion.sessions.step(
                     self.notetaker.session_id,
                     cmd=action_arg + "\n\n" + notetaker_notes,
                     url="https://anotepad.com/",
@@ -258,7 +272,7 @@ class DevOn:
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
                 if self.notetaker.status == "DONE":
                     break
-            self.scratchpad_image = multion.sessions.screenshot(
+            self.scratchpad_image = self.multion.sessions.screenshot(
                 session_id=self.notetaker.session_id
             ).screenshot
             print(self.scratchpad_image)

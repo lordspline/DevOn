@@ -1,3 +1,9 @@
+---
+title: DevOn
+app_file: app.py
+sdk: gradio
+sdk_version: 4.24.0
+---
 # DevOn
 
 What if you tried to do what Devin does, but using MultiOn's agents?
@@ -19,7 +25,4 @@ Setup:
 
 Barebones Demo:
 
-
-
 https://github.com/lordspline/DevOn/assets/74811063/6de8ba85-3f43-415b-8fd9-eff6b2ed29c5
-

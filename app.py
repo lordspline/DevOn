@@ -8,6 +8,10 @@ image_temp = "https://miro.medium.com/v2/resize:fit:1200/0*n-2bW82Z6m6U2bij.jpeg
 #     editor_image=image_temp, browser_image=image_temp, scratchpad_image=image_temp
 # )
 devon = None
+multion_api_key = ""
+openai_api_key = ""
+replit_email = ""
+replit_password = ""
 
 
 def add_message(history, message):
@@ -18,7 +22,37 @@ def add_message(history, message):
     return history, gr.MultimodalTextbox(value=None, interactive=False)
 
 
+def multion_api_key_update(x):
+    global multion_api_key
+    multion_api_key = x
+
+
+def openai_api_key_update(x):
+    global openai_api_key
+    openai_api_key = x
+
+
+def replit_email_update(x):
+    global replit_email
+    replit_email = x
+
+
+def replit_password_update(x):
+    global replit_password
+    replit_password = x
+
+
 def bot(history):
+    devon = DevOn(
+        editor_image=image_temp,
+        browser_image=image_temp,
+        scratchpad_image=image_temp,
+        multion_api_key=multion_api_key,
+        openai_api_key=openai_api_key,
+        replit_email=replit_email,
+        replit_password=replit_password,
+    )
+
     for r in devon.run(history[-1][0]):
         text, editor_image, browser_image, scratchpad_image = r
         if type(text) == str:
@@ -33,12 +67,21 @@ def bot(history):
 with gr.Blocks(css="footer {visibility: hidden}") as demo:
     with gr.Row():
         with gr.Column():
+            multion_api_key_in = gr.Textbox(label="MultiOn API Key")
+            openai_api_key_in = gr.Textbox(label="OpenAI API Key")
+        with gr.Column():
+            replit_email_in = gr.Textbox(label="Replit Email")
+            replit_password_in = gr.Textbox(label="Replit Password")
+    with gr.Row():
+        with gr.Column():
             chatbot = gr.Chatbot(
                 [], elem_id="chatbot", bubble_full_width=False, height=300
             )
 
             chat_input = gr.MultimodalTextbox(
-                value={"text": "write a basic hello world fastapi server"},
+                value={
+                    "text": "benchmark the perplexity api's resposne time with the api key abcdef"
+                },
                 interactive=True,
                 file_types=["image"],
                 placeholder="Enter message or upload file...",
@@ -81,11 +124,13 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
     )
     bot_msg.then(lambda: gr.MultimodalTextbox(interactive=True), None, [chat_input])
 
+    multion_api_key_in.change(multion_api_key_update, multion_api_key_in)
+    openai_api_key_in.change(openai_api_key_update, openai_api_key_in)
+    replit_email_in.change(replit_email_update, replit_email_in)
+    replit_password_in.change(replit_password_update, replit_password_in)
+
     # chatbot.like(print_like_dislike, None, None)
 
 if __name__ == "__main__":
-    devon = DevOn(
-        editor_image=image_temp, browser_image=image_temp, scratchpad_image=image_temp
-    )
     demo.queue()
     demo.launch()
