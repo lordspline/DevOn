@@ -93,6 +93,7 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
                 placeholder="Enter message or upload file...",
                 show_label=False,
             )
+            terminate = gr.Button("Terminate")
         with gr.Column():
             if devon:
                 editor_view = gr.Image(
@@ -134,6 +135,8 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
     openai_api_key_in.change(openai_api_key_update, openai_api_key_in)
     replit_email_in.change(replit_email_update, replit_email_in)
     replit_password_in.change(replit_password_update, replit_password_in)
+
+    terminate.click(fn=None, inputs=None, outputs=None, cancels=[bot_msg])
 
     # chatbot.like(print_like_dislike, None, None)
 
