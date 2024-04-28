@@ -102,7 +102,7 @@ class DevOn:
             # time.sleep(1)
             # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
             # self.editor_image = self.programmer["screenshot"]
-            if self.programmer.status == "DONE":
+            if self.programmer.status in ["DONE", "NOT SURE"]:
                 break
 
         self.editor_image = self.multion.sessions.screenshot(
@@ -184,35 +184,35 @@ class DevOn:
                     include_screenshot=True,
                 )
                 print(self.programmer)
-                if self.programmer.status == "NOT SURE":
-                    self.messages.append(
-                        {
-                            "role": "user",
-                            "content": "The Programmer says: {message}\n\nYour next reply will go to the programmer.".format(
-                                message=self.programmer.message
-                            ),
-                        }
-                    )
-                    chat_completion = self.client.chat.completions.create(
-                        messages=self.prepare_messages(),
-                        model="gpt-4-vision-preview",
-                        # max_tokens=200,
-                    )
-                    action_arg = chat_completion.choices[0].message.content
-                    self.messages.append({"role": "assistant", "content": action_arg})
-                else:
-                    self.messages.append(
-                        {
-                            "role": "user",
-                            "content": "The Programmer says: {message}".format(
-                                message=self.programmer.message
-                            ),
-                        }
-                    )
+                # if self.programmer.status == "NOT SURE":
+                #     self.messages.append(
+                #         {
+                #             "role": "user",
+                #             "content": "The Programmer says: {message}\n\nYour next reply will go to the programmer.".format(
+                #                 message=self.programmer.message
+                #             ),
+                #         }
+                #     )
+                #     chat_completion = self.client.chat.completions.create(
+                #         messages=self.prepare_messages(),
+                #         model="gpt-4-vision-preview",
+                #         # max_tokens=200,
+                #     )
+                #     action_arg = chat_completion.choices[0].message.content
+                #     self.messages.append({"role": "assistant", "content": action_arg})
+                # else:
+                self.messages.append(
+                    {
+                        "role": "user",
+                        "content": "The Programmer says: {message}".format(
+                            message=self.programmer.message
+                        ),
+                    }
+                )
                 # time.sleep(1)
                 # self.editor_image = self.programmer["screenshot"]
                 # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
-                if self.programmer.status == "DONE":
+                if self.programmer.status in ["DONE", "NOT SURE"]:
                     break
             self.editor_image = self.multion.sessions.screenshot(
                 session_id=self.programmer.session_id

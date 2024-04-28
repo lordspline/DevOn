@@ -3,6 +3,8 @@ import os
 import time
 from agent import DevOn
 
+start_time = time.time()
+
 image_temp = "https://miro.medium.com/v2/resize:fit:1200/0*n-2bW82Z6m6U2bij.jpeg"
 # devon = DevOn(
 #     editor_image=image_temp, browser_image=image_temp, scratchpad_image=image_temp
@@ -54,6 +56,10 @@ def bot(history):
     )
 
     for r in devon.run(history[-1][0]):
+        curr_time = time.time()
+        print(curr_time - start_time)
+        if curr_time - start_time >= 300:
+            break
         text, editor_image, browser_image, scratchpad_image = r
         if type(text) == str:
             history.append((None, text))
@@ -133,4 +139,4 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
 
 if __name__ == "__main__":
     demo.queue()
-    demo.launch()
+    demo.launch(debug=True)

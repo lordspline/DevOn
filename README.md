@@ -1,9 +1,3 @@
----
-title: DevOn
-app_file: app.py
-sdk: gradio
-sdk_version: 4.24.0
----
 # DevOn
 
 What if you tried to do what Devin does, but using MultiOn's agents?
