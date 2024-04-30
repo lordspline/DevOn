@@ -50,6 +50,10 @@ def bot(
     replit_password_in,
     local,
 ):
+    if len(multion_api_key_in) == 0:
+        raise gr.Error("MultiOn API Key is Required.")
+    if len(openai_api_key_in) == 0:
+        raise gr.Error("OpenAI API Key is Required.")
     start_time = time.time()
     devon = DevOn(
         editor_image=image_temp,
