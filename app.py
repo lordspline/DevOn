@@ -15,8 +15,8 @@ devon = None
 
 
 def add_message(history, message):
-    for x in message["files"]:
-        history.append(((x,), None))
+    # for x in message["files"]:
+    #     history.append(((x,), None))
     if message["text"] is not None:
         history.append((message["text"], None))
     return history, gr.MultimodalTextbox(value=None, interactive=False)
@@ -102,7 +102,7 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
                     "text": "benchmark the perplexity api's resposne time with the api key abcdef"
                 },
                 interactive=True,
-                file_types=["image"],
+                file_types=["text"],
                 placeholder="Enter message or upload file...",
                 show_label=False,
             )
