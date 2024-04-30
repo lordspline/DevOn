@@ -3,17 +3,15 @@ import os
 import time
 from agent import DevOn
 
-start_time = time.time()
-
 image_temp = "https://miro.medium.com/v2/resize:fit:1200/0*n-2bW82Z6m6U2bij.jpeg"
 # devon = DevOn(
 #     editor_image=image_temp, browser_image=image_temp, scratchpad_image=image_temp
 # )
 devon = None
-multion_api_key = ""
-openai_api_key = ""
-replit_email = ""
-replit_password = ""
+# multion_api_key = ""
+# openai_api_key = ""
+# replit_email = ""
+# replit_password = ""
 
 
 def add_message(history, message):
@@ -24,35 +22,44 @@ def add_message(history, message):
     return history, gr.MultimodalTextbox(value=None, interactive=False)
 
 
-def multion_api_key_update(x):
-    global multion_api_key
-    multion_api_key = x
+# def multion_api_key_update(x):
+#     # global multion_api_key
+#     multion_api_key = x
 
 
-def openai_api_key_update(x):
-    global openai_api_key
-    openai_api_key = x
+# def openai_api_key_update(x):
+#     # global openai_api_key
+#     openai_api_key = x
 
 
-def replit_email_update(x):
-    global replit_email
-    replit_email = x
+# def replit_email_update(x):
+#     # global replit_email
+#     replit_email = x
 
 
-def replit_password_update(x):
-    global replit_password
-    replit_password = x
+# def replit_password_update(x):
+#     # global replit_password
+#     replit_password = x
 
 
-def bot(history):
+def bot(
+    history,
+    multion_api_key_in,
+    openai_api_key_in,
+    replit_email_in,
+    replit_password_in,
+    local,
+):
+    start_time = time.time()
     devon = DevOn(
         editor_image=image_temp,
         browser_image=image_temp,
         scratchpad_image=image_temp,
-        multion_api_key=multion_api_key,
-        openai_api_key=openai_api_key,
-        replit_email=replit_email,
-        replit_password=replit_password,
+        multion_api_key=multion_api_key_in,
+        openai_api_key=openai_api_key_in,
+        replit_email=replit_email_in,
+        replit_password=replit_password_in,
+        local=local,
     )
 
     for r in devon.run(history[-1][0]):
@@ -93,7 +100,10 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
                 placeholder="Enter message or upload file...",
                 show_label=False,
             )
-            terminate = gr.Button("Terminate")
+
+            with gr.Row():
+                local = gr.Checkbox(True, label="Execute Locally")
+                terminate = gr.Button("Terminate")
         with gr.Column():
             if devon:
                 editor_view = gr.Image(
@@ -125,16 +135,23 @@ with gr.Blocks(css="footer {visibility: hidden}") as demo:
     )
     bot_msg = chat_msg.then(
         bot,
-        [chatbot],
+        [
+            chatbot,
+            multion_api_key_in,
+            openai_api_key_in,
+            replit_email_in,
+            replit_password_in,
+            local,
+        ],
         [chatbot, editor_view, browser_view, scratchpad_view],
         api_name="bot_response",
     )
     bot_msg.then(lambda: gr.MultimodalTextbox(interactive=True), None, [chat_input])
 
-    multion_api_key_in.change(multion_api_key_update, multion_api_key_in)
-    openai_api_key_in.change(openai_api_key_update, openai_api_key_in)
-    replit_email_in.change(replit_email_update, replit_email_in)
-    replit_password_in.change(replit_password_update, replit_password_in)
+    # multion_api_key_in.change(multion_api_key_update, multion_api_key_in)
+    # openai_api_key_in.change(openai_api_key_update, openai_api_key_in)
+    # replit_email_in.change(replit_email_update, replit_email_in)
+    # replit_password_in.change(replit_password_update, replit_password_in)
 
     terminate.click(fn=None, inputs=None, outputs=None, cancels=[bot_msg])
 

@@ -1,3 +1,10 @@
+---
+title: DevOn
+app_file: app.py
+sdk: gradio
+sdk_version: 4.24.0
+---
+
 # DevOn
 
 [Huggingface Space](https://huggingface.co/spaces/lordspline/devon)
@@ -11,8 +18,7 @@ Their activities are orchestrated and supervised by an overarching GPT-4V
 Setup:
 
 - `pip install -r requirements.txt`
-- If you want to use the local API (need to have the chrome extension installed and API enabled for this): `bash start_local.sh`
-- If you want to use the remote API: `bash start_remote.sh`
+- `bash start.sh`
 
 Barebones Demo:
 

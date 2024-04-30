@@ -1,1 +1,0 @@
-env WHERE_EXECUTE="local" gradio app.py

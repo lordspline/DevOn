@@ -31,12 +31,16 @@ class DevOn:
         openai_api_key,
         replit_email,
         replit_password,
+        local,
     ):
         print(multion_api_key, openai_api_key)
         self.editor_image = editor_image
         self.browser_image = browser_image
         self.scratchpad_image = scratchpad_image
-        self.local = os.getenv("WHERE_EXECUTE") == "local"
+        if os.getenv("WHERE_EXECUTE"):
+            self.local = local
+        else:
+            self.local = False
 
         self.multion = MultiOn(api_key=multion_api_key)
 
@@ -305,20 +309,319 @@ class DevOn:
         )
         print(self.messages)
 
-        self.execute_action(action)
+        # self.execute_action(action)
 
-        # temp
-        # self.done = True
+        action_func = action.split(" ", 1)[0]
+
+        if action_func == "submit":
+            self.done = True
+        elif action_func == "update_plan":
+            action_arg = action.split(" ", 1)[1]
+            self.plan = action_arg
+        elif action_func == "programmer":
+            action_arg = action.split(" ", 1)[1]
+            while True:
+                self.programmer = self.multion.sessions.step(
+                    self.programmer.session_id,
+                    cmd=action_arg + "\n\n" + programmer_notes,
+                    url="https://replit.com/login",
+                    include_screenshot=True,
+                )
+                print(self.programmer)
+                self.messages.append(
+                    {
+                        "role": "user",
+                        "content": "The Programmer says: {message}".format(
+                            message=self.programmer.message
+                        ),
+                    }
+                )
+                if self.programmer.status in ["DONE", "NOT SURE"]:
+                    break
+            self.editor_image = self.multion.sessions.screenshot(
+                session_id=self.programmer.session_id
+            ).screenshot
+            print(self.editor_image)
+            time.sleep(1)
+        elif action_func == "researcher":
+            action_arg = action.split(" ", 1)[1]
+            while True:
+                self.researcher = self.multion.sessions.step(
+                    self.researcher.session_id,
+                    cmd=action_arg,
+                    url="https://www.google.com",
+                    include_screenshot=True,
+                )
+                print(self.researcher)
+                self.messages.append(
+                    {
+                        "role": "user",
+                        "content": "The Researcher says: {message}".format(
+                            message=self.researcher.message
+                        ),
+                    }
+                )
+                # time.sleep(1)
+                # self.browser_image = self.researcher["screenshot"]
+                # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
+                if self.researcher.status == "DONE":
+                    break
+            self.browser_image = self.multion.sessions.screenshot(
+                session_id=self.researcher.session_id
+            ).screenshot
+            print(self.browser_image)
+            time.sleep(1)
+        elif action_func == "notetaker":
+            action_arg = action.split(" ", 1)[1]
+            while True:
+                self.notetaker = self.multion.sessions.step(
+                    self.notetaker.session_id,
+                    cmd=action_arg + "\n\n" + notetaker_notes,
+                    url="https://anotepad.com/",
+                    include_screenshot=True,
+                )
+                print(self.notetaker)
+                self.messages.append(
+                    {
+                        "role": "user",
+                        "content": "The Notetaker says: {message}".format(
+                            message=self.notetaker.message
+                        ),
+                    }
+                )
+                # time.sleep(1)
+                # self.scratchpad_image = self.notetaker["screenshot"]
+                # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
+                if self.notetaker.status == "DONE":
+                    break
+            self.scratchpad_image = self.multion.sessions.screenshot(
+                session_id=self.notetaker.session_id
+            ).screenshot
+            print(self.scratchpad_image)
+            time.sleep(1)
+        elif action_func == "clarify":
+            action_arg = action.split(" ", 1)[1]
+
         return explanation
 
     def run(self, prompt):
         self.done = False
         self.task = prompt
         while not self.done:
-            curr_response = self.orchestrator()
-            yield (
-                curr_response,
-                self.editor_image,
-                self.browser_image,
-                self.scratchpad_image,
+            # curr_response = self.orchestrator()
+
+            if not self.programmer_logged_in:
+                # self.programmer_login()
+                if self.local:
+                    cmd = "Create a new Python REPL."
+                else:
+                    cmd = "Log in with the email {email} and the password {password}. Then create a new Python REPL.".format(
+                        email=self.replit_email, password=self.replit_password
+                    )
+                while True:
+                    self.programmer = self.multion.sessions.step(
+                        self.programmer.session_id,
+                        cmd=cmd + "\n\n" + programmer_notes,
+                        url="https://replit.com/login",
+                        include_screenshot=True,
+                    )
+                    print(self.programmer)
+                    print(
+                        self.multion.sessions.screenshot(
+                            session_id=self.programmer.session_id
+                        ).screenshot
+                    )
+                    # time.sleep(1)
+                    # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
+                    # self.editor_image = self.programmer["screenshot"]
+                    if self.programmer.status in ["DONE", "NOT SURE"]:
+                        break
+                    self.editor_image = self.multion.sessions.screenshot(
+                        session_id=self.programmer.session_id
+                    ).screenshot
+                    time.sleep(1)
+                    yield (
+                        "I am setting up the programming environment",
+                        self.editor_image,
+                        self.browser_image,
+                        self.scratchpad_image,
+                    )
+
+                self.editor_image = self.multion.sessions.screenshot(
+                    session_id=self.programmer.session_id
+                ).screenshot
+                time.sleep(1)
+                self.programmer_logged_in = True
+            messages = self.prepare_messages()
+            chat_completion = self.client.chat.completions.create(
+                messages=messages,
+                model="gpt-4-vision-preview",
+                # max_tokens=200,
             )
+            response = chat_completion.choices[0].message.content
+            action, explanation = response.split("Explanation: ", 1)
+            action = action.split("Action: ", 1)[1]
+
+            self.messages.append({"role": "assistant", "content": response})
+            self.messages.append(
+                {
+                    "role": "user",
+                    "content": "The current Plan state is: {plan}".format(
+                        plan=self.plan
+                    ),
+                }
+            )
+            print(self.messages)
+
+            # self.execute_action(action)
+
+            action_func = action.split(" ", 1)[0]
+
+            if action_func == "submit":
+                self.done = True
+                yield (
+                    explanation,
+                    self.editor_image,
+                    self.browser_image,
+                    self.scratchpad_image,
+                )
+            elif action_func == "update_plan":
+                action_arg = action.split(" ", 1)[1]
+                self.plan = action_arg
+                yield (
+                    explanation,
+                    self.editor_image,
+                    self.browser_image,
+                    self.scratchpad_image,
+                )
+            elif action_func == "programmer":
+                action_arg = action.split(" ", 1)[1]
+                while True:
+                    self.programmer = self.multion.sessions.step(
+                        self.programmer.session_id,
+                        cmd=action_arg + "\n\n" + programmer_notes,
+                        url="https://replit.com/login",
+                        include_screenshot=True,
+                    )
+                    print(self.programmer)
+                    self.messages.append(
+                        {
+                            "role": "user",
+                            "content": "The Programmer says: {message}".format(
+                                message=self.programmer.message
+                            ),
+                        }
+                    )
+                    if self.programmer.status in ["DONE", "NOT SURE"]:
+                        break
+                    self.editor_image = self.multion.sessions.screenshot(
+                        session_id=self.programmer.session_id
+                    ).screenshot
+                    print(self.editor_image)
+                    time.sleep(1)
+                    yield (
+                        explanation,
+                        self.editor_image,
+                        self.browser_image,
+                        self.scratchpad_image,
+                    )
+                self.editor_image = self.multion.sessions.screenshot(
+                    session_id=self.programmer.session_id
+                ).screenshot
+                print(self.editor_image)
+                time.sleep(1)
+            elif action_func == "researcher":
+                action_arg = action.split(" ", 1)[1]
+                while True:
+                    self.researcher = self.multion.sessions.step(
+                        self.researcher.session_id,
+                        cmd=action_arg,
+                        url="https://www.google.com",
+                        include_screenshot=True,
+                    )
+                    print(self.researcher)
+                    self.messages.append(
+                        {
+                            "role": "user",
+                            "content": "The Researcher says: {message}".format(
+                                message=self.researcher.message
+                            ),
+                        }
+                    )
+                    # time.sleep(1)
+                    # self.browser_image = self.researcher["screenshot"]
+                    # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
+                    if self.researcher.status == "DONE":
+                        break
+                    self.browser_image = self.multion.sessions.screenshot(
+                        session_id=self.researcher.session_id
+                    ).screenshot
+                    print(self.browser_image)
+                    time.sleep(1)
+                    yield (
+                        explanation,
+                        self.editor_image,
+                        self.browser_image,
+                        self.scratchpad_image,
+                    )
+                self.browser_image = self.multion.sessions.screenshot(
+                    session_id=self.researcher.session_id
+                ).screenshot
+                print(self.browser_image)
+                time.sleep(1)
+            elif action_func == "notetaker":
+                action_arg = action.split(" ", 1)[1]
+                while True:
+                    self.notetaker = self.multion.sessions.step(
+                        self.notetaker.session_id,
+                        cmd=action_arg + "\n\n" + notetaker_notes,
+                        url="https://anotepad.com/",
+                        include_screenshot=True,
+                    )
+                    print(self.notetaker)
+                    self.messages.append(
+                        {
+                            "role": "user",
+                            "content": "The Notetaker says: {message}".format(
+                                message=self.notetaker.message
+                            ),
+                        }
+                    )
+                    # time.sleep(1)
+                    # self.scratchpad_image = self.notetaker["screenshot"]
+                    # yield ("", self.editor_image, self.browser_image, self.scratchpad_image)
+                    if self.notetaker.status == "DONE":
+                        break
+                    self.scratchpad_image = self.multion.sessions.screenshot(
+                        session_id=self.notetaker.session_id
+                    ).screenshot
+                    print(self.scratchpad_image)
+                    time.sleep(1)
+                    yield (
+                        explanation,
+                        self.editor_image,
+                        self.browser_image,
+                        self.scratchpad_image,
+                    )
+                self.scratchpad_image = self.multion.sessions.screenshot(
+                    session_id=self.notetaker.session_id
+                ).screenshot
+                print(self.scratchpad_image)
+                time.sleep(1)
+            elif action_func == "clarify":
+                action_arg = action.split(" ", 1)[1]
+                yield (
+                    explanation,
+                    self.editor_image,
+                    self.browser_image,
+                    self.scratchpad_image,
+                )
+
+            # return explanation
+
+            # yield (
+            #     curr_response,
+            #     self.editor_image,
+            #     self.browser_image,
+            #     self.scratchpad_image,
+            # )
