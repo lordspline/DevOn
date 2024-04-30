@@ -65,8 +65,8 @@ def bot(
     for r in devon.run(history[-1][0]):
         curr_time = time.time()
         print(curr_time - start_time)
-        if curr_time - start_time >= 300:
-            break
+        # if curr_time - start_time >= 300:
+        #     break
         text, editor_image, browser_image, scratchpad_image = r
         if type(text) == str:
             history.append((None, text))
@@ -78,6 +78,12 @@ def bot(
 
 
 with gr.Blocks(css="footer {visibility: hidden}") as demo:
+    md = gr.Markdown(
+        """Notes:
+                     - Use "Execute Locally" for better results.
+                     - For local execution, you need to download the [MultiOn Browser Extension](https://chromewebstore.google.com/detail/multion/ddmjhdbknfidiopmbaceghhhbgbpenmm) and have "API Enabled" in the settings.
+                     - The Huggingface Spaces demo will timeout after 5 minutes by default. To test with longer tasks, [clone the repo](https://github.com/lordspline/DevOn) and run DevOn locally."""
+    )
     with gr.Row():
         with gr.Column():
             multion_api_key_in = gr.Textbox(label="MultiOn API Key")
