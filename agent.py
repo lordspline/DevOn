@@ -37,10 +37,11 @@ class DevOn:
         self.editor_image = editor_image
         self.browser_image = browser_image
         self.scratchpad_image = scratchpad_image
-        if os.getenv("WHERE_EXECUTE"):
-            self.local = local
-        else:
-            self.local = False
+        self.local = local
+        # if os.getenv("WHERE_EXECUTE"):
+        #     self.local = local
+        # else:
+        #     self.local = False
 
         self.multion = MultiOn(api_key=multion_api_key)
 
